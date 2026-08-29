@@ -1,0 +1,9 @@
+{
+  "name": "Moneyology",
+  "short_name": "Moneyology",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fff8fa",
+  "theme_color": "#f7a8b8",
+  "description": "Private synced budget companion"
+}
