@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f7a8b8" />
+  <title>Moneyology</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{--bg:#fff8fa;--card:#fff;--ink:#3c3540;--muted:#817782;--pink:#f47f9d;--pink2:#ffd8e3;--peach:#ffe7d5;--lav:#ece4ff;--mint:#def5e9;--line:#eadfe4;--shadow:0 14px 36px rgba(83,54,68,.10)}
+    *{box-sizing:border-box} body{margin:0;font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,#fff8fa 0,#f9fbff 100%);min-height:100vh}
+    header{position:sticky;top:0;z-index:5;background:rgba(255,248,250,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    .bar{max-width:980px;margin:auto;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{font-weight:800;font-size:1.45rem;letter-spacing:-.03em}.status{font-size:.86rem;color:var(--muted)}
+    main{max-width:980px;margin:auto;padding:28px 18px 80px}.hero{background:linear-gradient(135deg,var(--pink2),var(--peach));border:1px solid #f5ced7;border-radius:26px;padding:28px;box-shadow:var(--shadow)}.hero h1{margin:0 0 8px;font-size:clamp(2rem,5vw,3.6rem);letter-spacing:-.05em}.hero p{margin:0;color:#665d65;max-width:700px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:20px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}.card h2{margin:0 0 6px;font-size:1.15rem}.card p{margin:0 0 16px;color:var(--muted)}
+    .wide{grid-column:1/-1}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}button,.button{appearance:none;border:0;border-radius:14px;padding:12px 16px;font-weight:750;cursor:pointer;background:var(--pink);color:white;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}button.secondary,.button.secondary{background:#f3edf1;color:#5e5159}.danger{background:#a2475a}button:disabled{opacity:.5;cursor:not-allowed}
+    input[type=file]{display:none}.keybox{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:12px}input[type=text]{width:100%;border:1px solid var(--line);border-radius:13px;padding:12px 13px;font:inherit;background:#fff}.mini{font-size:.83rem;color:var(--muted);margin-top:9px}.pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:var(--mint);font-weight:700;font-size:.82rem}.pill.off{background:#f1ebee;color:#806f77}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.stat{padding:14px;border-radius:16px;background:#faf7f9;border:1px solid var(--line)}.stat b{display:block;font-size:1.3rem}.stat span{font-size:.8rem;color:var(--muted)}
+    pre{white-space:pre-wrap;word-break:break-word;background:#2f2930;color:#fff;border-radius:16px;padding:14px;max-height:200px;overflow:auto;font-size:.78rem}.hidden{display:none!important}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.bar{padding:14px 16px}.hero{padding:22px}.keybox{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header><div class="bar"><div class="brand">Moneyology</div><div id="topStatus" class="status">Local only</div></div></header>
+<main>
+  <section class="hero"><h1>Your money, in one place.</h1><p>Moneyology keeps a local copy on this device and can sync the same backup securely through your private cloud key.</p></section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>1. Bring in your budget</h2>
+      <p>Import the JSON backup you already exported from Ultimate Paycheck Budget.</p>
+      <div class="row">
+        <label class="button" for="backupFile">Import JSON Backup</label>
+        <input id="backupFile" type="file" accept="application/json,.json" />
+        <button class="secondary" id="exportBtn" disabled>Export Backup</button>
+      </div>
+      <div id="importInfo" class="mini">No budget loaded on this device yet.</div>
+    </article>
+
+    <article class="card">
+      <h2>2. Turn on sync</h2>
+      <p>Create a private key on your first device, then enter the same key on your iPhone.</p>
+      <div class="row"><button id="createKeyBtn">Create Private Sync Key</button><span id="syncPill" class="pill off">Sync off</span></div>
+      <div class="keybox"><input id="syncKey" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Moneyology sync key" /><button class="secondary" id="saveKeyBtn">Use Key</button></div>
+      <div class="mini">Treat this key like a password. Anyone with it could access this Moneyology cloud copy.</div>
+    </article>
+
+    <article class="card wide">
+      <h2>3. Sync</h2>
+      <p>On the device with the newest data, choose Save to Cloud. On another device, choose Load from Cloud.</p>
+      <div class="row">
+        <button id="pushBtn" disabled>☁ Save to Cloud</button>
+        <button class="secondary" id="pullBtn" disabled>↓ Load from Cloud</button>
+      </div>
+      <div id="syncInfo" class="mini">Not synced yet.</div>
+      <div id="stats" class="stats hidden"></div>
+    </article>
+
+    <article class="card wide">
+      <h2>Safety backup</h2>
+      <p>Your local copy stays in this browser. Keep Export Backup available as an emergency backup even after cloud sync is working.</p>
+      <div class="row"><button class="secondary" id="clearLocalBtn">Clear this device only</button></div>
+    </article>
+  </section>
+</main>
+<script>
+const ENDPOINT='https://frvxdqdkoaozuvmrqdkl.supabase.co/functions/v1/moneyology-sync';
+const DATA_KEY='moneyology:data:v1';
+const SYNC_KEY='moneyology:sync-key:v1';
+let appData=null;
+const $=s=>document.querySelector(s);
+function saveLocal(){if(appData!==null)localStorage.setItem(DATA_KEY,JSON.stringify(appData));render();}
+function loadLocal(){try{const x=localStorage.getItem(DATA_KEY);appData=x?JSON.parse(x):null}catch{appData=null}render();}
+function getKey(){return localStorage.getItem(SYNC_KEY)||''}
+function setKey(v){v=(v||'').trim(); if(v)localStorage.setItem(SYNC_KEY,v); else localStorage.removeItem(SYNC_KEY); $('#syncKey').value=v; render();}
+function counts(d){if(!d||typeof d!=='object')return{};return {Transactions:Array.isArray(d.bills)?d.bills.length:0,Debts:Array.isArray(d.debts)?d.debts.length:0,Accounts:Array.isArray(d.accounts)?d.accounts.length:0,Savings:Array.isArray(d.savingsFunds)?d.savingsFunds.length:(Array.isArray(d.savings)?d.savings.length:0)}}
+function render(){const key=getKey();$('#syncKey').value=key;$('#syncPill').textContent=key?'Sync key ready':'Sync off';$('#syncPill').classList.toggle('off',!key);$('#topStatus').textContent=key?'Cloud sync available':'Local only';$('#pushBtn').disabled=!(key&&appData);$('#pullBtn').disabled=!key;$('#exportBtn').disabled=!appData;$('#importInfo').textContent=appData?'Budget loaded on this device.':'No budget loaded on this device yet.';const c=counts(appData),stats=$('#stats');stats.innerHTML='';if(appData){Object.entries(c).forEach(([k,v])=>stats.insertAdjacentHTML('beforeend',`<div class="stat"><b>${v}</b><span>${k}</span></div>`));stats.classList.remove('hidden')}else stats.classList.add('hidden')}
+function randomKey(){const b=new Uint8Array(32);crypto.getRandomValues(b);return Array.from(b,x=>x.toString(16).padStart(2,'0')).join('')}
+async function cloud(method,payload){const key=getKey();const opts={method,headers:{'x-moneyology-key':key,'content-type':'application/json'}};if(method==='POST')opts.body=JSON.stringify({payload});const r=await fetch(ENDPOINT,opts);let j={};try{j=await r.json()}catch{}if(!r.ok)throw new Error(j.error||`Sync failed (${r.status})`);return j}
+$('#backupFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());appData=d;saveLocal();$('#importInfo').textContent=`Imported ${f.name}. Saved locally.`}catch(err){alert('That file could not be imported: '+err.message)}e.target.value=''});
+$('#exportBtn').onclick=()=>{if(!appData)return;const blob=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`moneyology-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)};
+$('#createKeyBtn').onclick=()=>{if(getKey()&&!confirm('Replace the sync key saved on this device?'))return;setKey(randomKey());navigator.clipboard?.writeText(getKey()).catch(()=>{});alert('Private sync key created. I also tried to copy it to your clipboard. Save it somewhere private so you can connect your iPhone.')};
+$('#saveKeyBtn').onclick=()=>setKey($('#syncKey').value);
+$('#pushBtn').onclick=async()=>{try{$('#syncInfo').textContent='Saving to cloud…';const j=await cloud('POST',appData);$('#syncInfo').textContent=`Saved to cloud. Version ${j.version} • ${new Date(j.updated_at).toLocaleString()}`}catch(e){$('#syncInfo').textContent='Sync error: '+e.message}};
+$('#pullBtn').onclick=async()=>{try{$('#syncInfo').textContent='Loading from cloud…';const j=await cloud('GET');if(!j.payload){$('#syncInfo').textContent='Nothing has been saved with this key yet.';return}if(appData&&!confirm('Replace the local copy on this device with the cloud copy?'))return;appData=j.payload;saveLocal();$('#syncInfo').textContent=`Loaded cloud version ${j.version} • ${new Date(j.updated_at).toLocaleString()}`}catch(e){$('#syncInfo').textContent='Sync error: '+e.message}};
+$('#clearLocalBtn').onclick=()=>{if(!confirm('Clear Moneyology data and sync key from THIS browser only? Your cloud copy will not be deleted.'))return;localStorage.removeItem(DATA_KEY);localStorage.removeItem(SYNC_KEY);appData=null;render();$('#syncInfo').textContent='This device was cleared.'};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+loadLocal();
+</script>
+</body>
+</html>
