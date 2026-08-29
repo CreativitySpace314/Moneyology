@@ -1,9 +1,1 @@
-{
-  "name": "Moneyology",
-  "short_name": "Moneyology",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#fff8fa",
-  "theme_color": "#f7a8b8",
-  "description": "Private synced budget companion"
-}
+{"name":"Moneyology","short_name":"Moneyology","start_url":"./","display":"standalone","background_color":"#fff8fb","theme_color":"#e86f94","description":"Standalone paycheck budgeting, subscriptions, savings and debt progress with automatic cloud sync","icons":[]}
